@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parent Dashboard · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions" id="header-actions"></div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="page-title">Parent Dashboard</h1>
+    <p id="page-sub">Notices from the school office, and a secure place to check on your child.</p>
+  </div>
+
+  <div id="logged-out-section">
+    <div class="login-tiles">
+      <button class="login-tile" id="open-admin-login" type="button">
+        <span class="login-tile__label">Admin Login</span>
+        <p class="login-tile__desc">School office access — manage students, attendance, marks, fees, and announcements.</p>
+      </button>
+      <button class="login-tile login-tile--parent" id="open-parent-login" type="button">
+        <span class="login-tile__label">Parent Login</span>
+        <p class="login-tile__desc">Sign in with your child's details to check attendance, marks, and fees.</p>
+      </button>
+    </div>
+  </div>
+
+  <div id="logged-in-section" class="hidden">
+    <div class="tile-grid">
+      <a class="nav-tile" href="profile.html">
+        <span class="nav-tile__title">Student Dashboard</span>
+        <span class="nav-tile__sub">Name, class, roll no. &amp; photo</span>
+      </a>
+      <a class="nav-tile" href="fees.html">
+        <span class="nav-tile__title">Fees</span>
+        <span class="nav-tile__sub">Amount due &amp; payment history</span>
+      </a>
+      <a class="nav-tile" href="attendance.html">
+        <span class="nav-tile__title">Attendance</span>
+        <span class="nav-tile__sub">Daily record &amp; overall percentage</span>
+      </a>
+      <a class="nav-tile" href="grades.html">
+        <span class="nav-tile__title">Marks</span>
+        <span class="nav-tile__sub">Marksheet &amp; results</span>
+      </a>
+    </div>
+  </div>
+
+  <section>
+    <h2>Announcements</h2>
+    <div id="announcements-board" class="board">
+      <p class="spinner-note">Loading announcements…</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<!-- Admin login modal -->
+<div id="admin-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Admin Login</h2>
+      <button class="modal__close" type="button" data-close-modal="admin-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="muted">School office staff only.</p>
+    <div id="admin-login-error"></div>
+    <form id="admin-login-form">
+      <div class="field">
+        <label for="admin-username">Username</label>
+        <input id="admin-username" name="username" type="text" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input id="admin-password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<!-- Parent login modal -->
+<div id="parent-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Parent Login</h2>
+      <button class="modal__close" type="button" data-close-modal="parent-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="muted">Use the details given to you by the school office at admission.</p>
+    <div id="parent-login-error"></div>
+    <form id="parent-login-form">
+      <div class="field">
+        <label for="p-guardian">Your name (parent/guardian)</label>
+        <input id="p-guardian" name="guardianName" type="text" required />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="p-first">Student first name</label>
+          <input id="p-first" name="studentFirstName" type="text" required />
+        </div>
+        <div class="field">
+          <label for="p-last">Student last name</label>
+          <input id="p-last" name="studentLastName" type="text" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="p-class">Class</label>
+          <input id="p-class" name="studentClass" type="text" placeholder="e.g. 5" required />
+        </div>
+        <div class="field">
+          <label for="p-roll">Roll number</label>
+          <input id="p-roll" name="rollNo" type="text" inputmode="numeric" placeholder="8-digit roll no." required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="p-password">Password</label>
+        <input id="p-password" name="password" type="password" required />
+      </div>
+      <button class="btn btn-brass btn-block" type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>

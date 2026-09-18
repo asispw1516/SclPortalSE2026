@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Attendance · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html">Dashboard</a>
+      <button class="btn btn-outline btn-sm" id="logout-btn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="page-title">Attendance</h1>
+    <p>Day-by-day attendance record.</p>
+  </div>
+
+  <div class="panel">
+    <div class="stat-row" id="stat-row">
+      <div class="stat"><div class="stat__value">—</div><div class="stat__label">Attendance rate</div></div>
+      <div class="stat"><div class="stat__value">—</div><div class="stat__label">Days recorded</div></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="attendance-body">
+        <tr><td colspan="2" class="spinner-note">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+  const STATUS_BADGE = {
+    present: '<span class="badge badge-pine">Present</span>',
+    absent: '<span class="badge badge-brick">Absent</span>',
+    late: '<span class="badge badge-brass">Late</span>',
+  };
+
+  (async function () {
+    const student = await requireParentOrRedirect();
+    if (!student) return;
+    wireLogout(document.getElementById("logout-btn"));
+    document.getElementById("page-title").textContent = `Attendance — ${student.firstName} ${student.lastName}`;
+
+    try {
+      const data = await api("/me/attendance");
+      const statRow = document.getElementById("stat-row");
+      statRow.innerHTML = `
+        <div class="stat"><div class="stat__value">${data.percentage === null ? "—" : data.percentage + "%"}</div><div class="stat__label">Attendance rate</div></div>
+        <div class="stat"><div class="stat__value">${data.totalDays}</div><div class="stat__label">Days recorded</div></div>
+      `;
+
+      const body = document.getElementById("attendance-body");
+      if (!data.records.length) {
+        body.innerHTML = `<tr><td colspan="2"><div class="empty-note">No attendance recorded yet.</div></td></tr>`;
+      } else {
+        body.innerHTML = data.records
+          .map((r) => `<tr><td>${formatDateLabel(r.date)}</td><td>${STATUS_BADGE[r.status] || r.status}</td></tr>`)
+          .join("");
+      }
+    } catch (e) {
+      document.getElementById("attendance-body").innerHTML =
+        `<tr><td colspan="2"><div class="empty-note">Couldn't load attendance right now.</div></td></tr>`;
+    }
+  })();
+</script>
+</body>
+</html>

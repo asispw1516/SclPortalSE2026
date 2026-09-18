@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Marks · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html">Dashboard</a>
+      <button class="btn btn-outline btn-sm" id="logout-btn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="page-title">Marks</h1>
+    <p>Marksheet across recorded exams and assessments.</p>
+  </div>
+
+  <div class="panel">
+    <div class="stat-row">
+      <div class="stat"><div class="stat__value" id="overall-pct">—</div><div class="stat__label">Overall percentage</div></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Exam</th><th>Subject</th><th class="numeric">Marks</th><th class="numeric">Percentage</th></tr></thead>
+      <tbody id="marks-body">
+        <tr><td colspan="4" class="spinner-note">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+  (async function () {
+    const student = await requireParentOrRedirect();
+    if (!student) return;
+    wireLogout(document.getElementById("logout-btn"));
+    document.getElementById("page-title").textContent = `Marks — ${student.firstName} ${student.lastName}`;
+
+    try {
+      const data = await api("/me/marks");
+      document.getElementById("overall-pct").textContent =
+        data.overallPercentage === null ? "—" : data.overallPercentage + "%";
+
+      const body = document.getElementById("marks-body");
+      if (!data.records.length) {
+        body.innerHTML = `<tr><td colspan="4"><div class="empty-note">No marks recorded yet.</div></td></tr>`;
+      } else {
+        body.innerHTML = data.records
+          .map((r) => {
+            const pct = Math.round((r.marksObtained / r.maxMarks) * 100);
+            return `<tr>
+              <td>${escapeHtml(r.examName)}</td>
+              <td>${escapeHtml(r.subject)}</td>
+              <td class="numeric">${r.marksObtained} / ${r.maxMarks}</td>
+              <td class="numeric">${pct}%</td>
+            </tr>`;
+          })
+          .join("");
+      }
+    } catch (e) {
+      document.getElementById("marks-body").innerHTML =
+        `<tr><td colspan="4"><div class="empty-note">Couldn't load marks right now.</div></td></tr>`;
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="announcements.html">View announcements page</a>
+      <button class="btn btn-outline btn-sm" id="logout-btn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Admin Dashboard</h1>
+    <p>Add and manage students, take attendance, record marks, track fees, and post announcements.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2 class="panel__title">Students</h2>
+      <button class="btn btn-brass btn-sm" id="open-add-student" type="button">+ Add student</button>
+    </div>
+
+    <div class="class-chips" id="class-chips">
+      <span class="muted">No classes yet — add your first student to get started.</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll no.</th>
+            <th>Name</th>
+            <th>Guardian</th>
+            <th>Fees (this month)</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="students-body">
+          <tr><td colspan="6" class="spinner-note">Select a class above to see its students.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head">
+      <h2 class="panel__title">Announcements</h2>
+      <button class="btn btn-outline btn-sm" id="open-add-announcement" type="button">+ New announcement</button>
+    </div>
+    <div id="admin-announcements-board" class="board stack-gap-sm">
+      <p class="spinner-note">Loading…</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal — Admin</footer>
+
+<!-- Add student modal -->
+<div id="add-student-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Add Student</h2>
+      <button class="modal__close" type="button" data-close-modal="add-student-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="muted">Roll number and password are generated automatically.</p>
+    <div id="add-student-error"></div>
+    <form id="add-student-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="as-first">First name</label>
+          <input id="as-first" name="firstName" type="text" required />
+        </div>
+        <div class="field">
+          <label for="as-last">Last name</label>
+          <input id="as-last" name="lastName" type="text" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="as-class">Class</label>
+          <input id="as-class" name="studentClass" type="text" placeholder="e.g. 5" required />
+        </div>
+        <div class="field">
+          <label for="as-guardian">Parent/guardian name</label>
+          <input id="as-guardian" name="guardianName" type="text" required />
+        </div>
+      </div>
+      <button class="btn btn-brass btn-block" type="submit">Add student</button>
+    </form>
+  </div>
+</div>
+
+<!-- New-student credentials reveal modal -->
+<div id="credentials-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Student added</h2>
+      <button class="modal__close" type="button" data-close-modal="credentials-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="muted">Give these to the parent now — this password won't be shown again here except from this admin panel.</p>
+    <div id="credentials-content"></div>
+    <button class="btn btn-primary btn-block" type="button" data-close-modal="credentials-modal">Done</button>
+  </div>
+</div>
+
+<!-- Edit student modal -->
+<div id="edit-student-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Edit Student</h2>
+      <button class="modal__close" type="button" data-close-modal="edit-student-modal" aria-label="Close">&times;</button>
+    </div>
+    <div id="edit-student-error"></div>
+    <form id="edit-student-form">
+      <input type="hidden" name="studentId" />
+      <div class="field-row">
+        <div class="field">
+          <label for="es-first">First name</label>
+          <input id="es-first" name="firstName" type="text" required />
+        </div>
+        <div class="field">
+          <label for="es-last">Last name</label>
+          <input id="es-last" name="lastName" type="text" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="es-class">Class</label>
+          <input id="es-class" name="studentClass" type="text" required />
+        </div>
+        <div class="field">
+          <label for="es-guardian">Parent/guardian name</label>
+          <input id="es-guardian" name="guardianName" type="text" required />
+        </div>
+      </div>
+      <p class="muted">Changing the class re-assigns the next available roll number in that class.</p>
+      <button class="btn btn-primary btn-block" type="submit">Save changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Attendance modal -->
+<div id="attendance-modal" class="modal-backdrop hidden">
+  <div class="modal modal--wide">
+    <div class="modal__head">
+      <h2 id="attendance-modal-title">Attendance</h2>
+      <button class="modal__close" type="button" data-close-modal="attendance-modal" aria-label="Close">&times;</button>
+    </div>
+    <form id="attendance-form" class="field-row" style="align-items:end;">
+      <div class="field">
+        <label for="att-date">Date</label>
+        <input id="att-date" name="date" type="date" required />
+      </div>
+      <div class="field">
+        <label for="att-status">Status</label>
+        <select id="att-status" name="status" required>
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="late">Late</option>
+        </select>
+      </div>
+      <div class="field">
+        <button class="btn btn-brass btn-block" type="submit">Save</button>
+      </div>
+    </form>
+    <div id="attendance-error"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Status</th><th></th></tr></thead>
+        <tbody id="attendance-modal-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Marks modal -->
+<div id="marks-modal" class="modal-backdrop hidden">
+  <div class="modal modal--wide">
+    <div class="modal__head">
+      <h2 id="marks-modal-title">Marks</h2>
+      <button class="modal__close" type="button" data-close-modal="marks-modal" aria-label="Close">&times;</button>
+    </div>
+    <form id="marks-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="mk-exam">Exam / test name</label>
+          <input id="mk-exam" name="examName" type="text" placeholder="e.g. Midterm" required />
+        </div>
+        <div class="field">
+          <label for="mk-subject">Subject</label>
+          <input id="mk-subject" name="subject" type="text" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="mk-obtained">Marks obtained</label>
+          <input id="mk-obtained" name="marksObtained" type="number" min="0" step="0.5" required />
+        </div>
+        <div class="field">
+          <label for="mk-max">Max marks</label>
+          <input id="mk-max" name="maxMarks" type="number" min="1" step="0.5" required />
+        </div>
+      </div>
+      <button class="btn btn-brass btn-block" type="submit">Add entry</button>
+    </form>
+    <div id="marks-error"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Exam</th><th>Subject</th><th class="numeric">Marks</th><th></th></tr></thead>
+        <tbody id="marks-modal-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Fees modal -->
+<div id="fees-modal" class="modal-backdrop hidden">
+  <div class="modal modal--wide">
+    <div class="modal__head">
+      <h2 id="fees-modal-title">Fees</h2>
+      <button class="modal__close" type="button" data-close-modal="fees-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="muted">Tick a month once that month's fee has been paid.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>Paid</th></tr></thead>
+        <tbody id="fees-modal-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add announcement modal -->
+<div id="add-announcement-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>New Announcement</h2>
+      <button class="modal__close" type="button" data-close-modal="add-announcement-modal" aria-label="Close">&times;</button>
+    </div>
+    <div id="add-announcement-error"></div>
+    <form id="add-announcement-form">
+      <div class="field">
+        <label for="an-title">Title</label>
+        <input id="an-title" name="title" type="text" required />
+      </div>
+      <div class="field">
+        <label for="an-content">Message</label>
+        <textarea id="an-content" name="content" rows="4" required></textarea>
+      </div>
+      <button class="btn btn-brass btn-block" type="submit">Post announcement</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

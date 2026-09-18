@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html">Dashboard</a>
+      <button class="btn btn-outline btn-sm" id="logout-btn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Student Dashboard</h1>
+    <p>Basic details on file for your child.</p>
+  </div>
+
+  <div id="content">
+    <p class="spinner-note">Loading…</p>
+  </div>
+
+  <div class="tile-grid" style="margin-top: 32px;">
+    <a class="nav-tile" href="fees.html">
+      <span class="nav-tile__title">Fees</span>
+      <span class="nav-tile__sub">Amount due &amp; payment history</span>
+    </a>
+    <a class="nav-tile" href="attendance.html">
+      <span class="nav-tile__title">Attendance</span>
+      <span class="nav-tile__sub">Daily record &amp; overall percentage</span>
+    </a>
+    <a class="nav-tile" href="grades.html">
+      <span class="nav-tile__title">Marks</span>
+      <span class="nav-tile__sub">Marksheet &amp; results</span>
+    </a>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+  (async function () {
+    const student = await requireParentOrRedirect();
+    if (!student) return;
+    wireLogout(document.getElementById("logout-btn"));
+
+    document.getElementById("content").innerHTML = `
+      <div class="id-card">
+        <div class="id-card__avatar">${escapeHtml(student.initials)}</div>
+        <div>
+          <div class="id-card__name">${escapeHtml(student.firstName)} ${escapeHtml(student.lastName)}</div>
+          <div class="id-card__meta">
+            <span><strong>Class</strong> ${escapeHtml(student.className)}</span>
+            <span><strong>Roll no.</strong> ${escapeHtml(student.rollNoDisplay)}</span>
+            <span><strong>Parent/Guardian</strong> ${escapeHtml(student.guardianName)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  })();
+</script>
+</body>
+</html>

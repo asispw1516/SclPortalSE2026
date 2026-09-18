@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fees · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html">Dashboard</a>
+      <button class="btn btn-outline btn-sm" id="logout-btn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="page-title">Fees</h1>
+    <p>Monthly school fee payment status.</p>
+  </div>
+
+  <div class="panel">
+    <div class="stat-row" id="current-month-status">
+      <div class="stat"><div class="stat__value">—</div><div class="stat__label">This month</div></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Month</th><th>Status</th><th>Paid on</th></tr></thead>
+      <tbody id="fees-body">
+        <tr><td colspan="3" class="spinner-note">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+  function currentMonthKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  (async function () {
+    const student = await requireParentOrRedirect();
+    if (!student) return;
+    wireLogout(document.getElementById("logout-btn"));
+    document.getElementById("page-title").textContent = `Fees — ${student.firstName} ${student.lastName}`;
+
+    try {
+      const data = await api("/me/fees");
+      const thisMonth = data.records.find((r) => r.month === currentMonthKey());
+      const statusHtml = thisMonth && thisMonth.paid
+        ? '<span class="badge badge-pine">Paid</span>'
+        : '<span class="badge badge-brick">Due</span>';
+      document.getElementById("current-month-status").innerHTML = `
+        <div class="stat"><div class="stat__value">${statusHtml}</div><div class="stat__label">${formatMonthLabel(currentMonthKey())}</div></div>
+      `;
+
+      const body = document.getElementById("fees-body");
+      if (!data.records.length) {
+        body.innerHTML = `<tr><td colspan="3"><div class="empty-note">No fee records yet.</div></td></tr>`;
+      } else {
+        body.innerHTML = data.records
+          .map(
+            (r) => `<tr>
+              <td>${formatMonthLabel(r.month)}</td>
+              <td>${r.paid ? '<span class="badge badge-pine">Paid</span>' : '<span class="badge badge-brick">Due</span>'}</td>
+              <td>${r.paidOn ? formatDateLabel(r.paidOn) : "—"}</td>
+            </tr>`
+          )
+          .join("");
+      }
+    } catch (e) {
+      document.getElementById("fees-body").innerHTML =
+        `<tr><td colspan="3"><div class="empty-note">Couldn't load fees right now.</div></td></tr>`;
+    }
+  })();
+</script>
+</body>
+</html>

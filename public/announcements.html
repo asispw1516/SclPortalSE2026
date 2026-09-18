@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Announcements · Greenfield School Portal</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="wordmark" href="index.html">
+      <span class="wordmark__crest">GS</span>
+      <span>
+        <span class="wordmark__name">Greenfield School</span><br />
+        <span class="wordmark__tag">Parent &amp; Admin Portal</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="index.html">Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Announcements</h1>
+    <p>Notices from the school office.</p>
+  </div>
+  <div id="announcements-board" class="board">
+    <p class="spinner-note">Loading announcements…</p>
+  </div>
+</main>
+
+<footer class="site-footer">Greenfield School Portal</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+  (async function () {
+    const board = document.getElementById("announcements-board");
+    try {
+      const data = await api("/announcements");
+      if (!data.announcements.length) {
+        board.innerHTML = `<div class="empty-note">No announcements yet. Check back soon.</div>`;
+        return;
+      }
+      board.innerHTML = data.announcements
+        .map(
+          (a) => `
+          <article class="board-card">
+            <h3 class="board-card__title">${escapeHtml(a.title)}</h3>
+            <p class="board-card__date">${formatDateLabel(a.date)}</p>
+            <p class="board-card__body">${escapeHtml(a.content)}</p>
+          </article>`
+        )
+        .join("");
+    } catch (e) {
+      board.innerHTML = `<div class="empty-note">Couldn't load announcements right now.</div>`;
+    }
+  })();
+</script>
+</body>
+</html>
