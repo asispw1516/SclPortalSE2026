@@ -92,7 +92,7 @@ async function loadStudents() {
       <tr data-id="${s.id}">
         <td class="roll-no">${escapeHtml(s.rollNoDisplay)}</td>
         <td>${escapeHtml(s.firstName)} ${escapeHtml(s.lastName)}</td>
-        <td>${escapeHtml(s.guardianName)}</td>
+        <td>${escapeHtml(s.guardianName)}${s.guardianEmail ? `<br /><span class="muted" style="font-size:12px;">${escapeHtml(s.guardianEmail)}</span>` : ""}</td>
         <td>${feeBadge}</td>
         <td><code>${escapeHtml(s.password)}</code></td>
         <td>
@@ -144,6 +144,7 @@ document.getElementById("add-student-form").addEventListener("submit", async (e)
         lastName: form.lastName.value,
         className: form.studentClass.value,
         guardianName: form.guardianName.value,
+        guardianEmail: form.guardianEmail.value,
       },
     });
     closeModal("add-student-modal");
@@ -186,8 +187,9 @@ function openEditStudentModal(student) {
   form.studentId.value = student.id;
   form.firstName.value = student.firstName;
   form.lastName.value = student.lastName;
-  form.studentClass.value = student.className;
+   form.studentClass.value = student.className;
   form.guardianName.value = student.guardianName;
+  form.guardianEmail.value = student.guardianEmail || "";
   document.getElementById("edit-student-error").innerHTML = "";
   openModal("edit-student-modal");
 }
@@ -202,11 +204,12 @@ document.getElementById("edit-student-form").addEventListener("submit", async (e
   try {
     await api(`/students/${form.studentId.value}`, {
       method: "PUT",
-      body: {
+          body: {
         firstName: form.firstName.value,
         lastName: form.lastName.value,
         className: form.studentClass.value,
         guardianName: form.guardianName.value,
+        guardianEmail: form.guardianEmail.value,
       },
     });
     closeModal("edit-student-modal");
