@@ -50,11 +50,15 @@ router.get("/:id", requireAdminOrOwningParent, (req, res) => {
 // POST /api/students - create a student. Roll number and password are always
 // generated server-side; nothing the client sends can override them.
 router.post("/", requireAdmin, async (req, res) => {
-  const { firstName, lastName, className, guardianName } = req.body || {};
+    const { firstName, lastName, className, guardianName, guardianEmail } = req.body || {};
   if (!firstName || !lastName || !className || !guardianName) {
     return res.status(400).json({
       error: "First name, last name, class, and parent/guardian name are all required.",
     });
+  }
+  const trimmedEmail = guardianEmail ? String(guardianEmail).trim() : "";
+  if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+    return res.status(400).json({ error: "That doesn't look like a valid email address." });
   }
 
   const student = await transact((db) => {
@@ -65,6 +69,7 @@ router.post("/", requireAdmin, async (req, res) => {
       lastName: String(lastName).trim(),
       className: String(className).trim(),
       guardianName: String(guardianName).trim(),
+      guardianEmail: trimmedEmail,
       rollNo,
       password: generatePassword(8),
       createdAt: new Date().toISOString(),
@@ -79,7 +84,10 @@ router.post("/", requireAdmin, async (req, res) => {
 // PUT /api/students/:id - edit details. Roll number is only recomputed if
 // the class actually changes (so editing a name doesn't reshuffle rolls).
 router.put("/:id", requireAdmin, async (req, res) => {
-  const { firstName, lastName, className, guardianName } = req.body || {};
+    const { firstName, lastName, className, guardianName, guardianEmail } = req.body || {};
+  if (guardianEmail && String(guardianEmail).trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(guardianEmail).trim())) {
+    return res.status(400).json({ error: "That doesn't look like a valid email address." });
+  }
 
   const result = await transact((db) => {
     const student = db.students.find((s) => s.id === req.params.id);
@@ -88,6 +96,7 @@ router.put("/:id", requireAdmin, async (req, res) => {
     if (firstName) student.firstName = String(firstName).trim();
     if (lastName) student.lastName = String(lastName).trim();
     if (guardianName) student.guardianName = String(guardianName).trim();
+    if (guardianEmail !== undefined) student.guardianEmail = String(guardianEmail).trim();
 
     if (className && String(className).trim() !== student.className) {
       const newClassName = String(className).trim();
