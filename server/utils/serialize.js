@@ -13,6 +13,7 @@ function publicStudent(s) {
     rollNo: s.rollNo,
     rollNoDisplay: formatRollNo(s.rollNo),
     guardianName: s.guardianName,
+    guardianEmail: s.guardianEmail || "",
     initials: `${(s.firstName || " ")[0]}${(s.lastName || " ")[0]}`.toUpperCase(),
     createdAt: s.createdAt,
   };
