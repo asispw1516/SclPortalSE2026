@@ -97,10 +97,14 @@
           <label for="as-class">Class</label>
           <input id="as-class" name="studentClass" type="text" placeholder="e.g. 5" required />
         </div>
-        <div class="field">
+          <div class="field">
           <label for="as-guardian">Parent/guardian name</label>
           <input id="as-guardian" name="guardianName" type="text" required />
         </div>
+      </div>
+      <div class="field">
+        <label for="as-guardian-email">Parent/guardian email</label>
+        <input id="as-guardian-email" name="guardianEmail" type="email" placeholder="parent@example.com" />
       </div>
       <button class="btn btn-brass btn-block" type="submit">Add student</button>
     </form>
@@ -145,10 +149,14 @@
           <label for="es-class">Class</label>
           <input id="es-class" name="studentClass" type="text" required />
         </div>
-        <div class="field">
+                <div class="field">
           <label for="es-guardian">Parent/guardian name</label>
           <input id="es-guardian" name="guardianName" type="text" required />
         </div>
+      </div>
+      <div class="field">
+        <label for="es-guardian-email">Parent/guardian email</label>
+        <input id="es-guardian-email" name="guardianEmail" type="email" placeholder="parent@example.com" />
       </div>
       <p class="muted">Changing the class re-assigns the next available roll number in that class.</p>
       <button class="btn btn-primary btn-block" type="submit">Save changes</button>
